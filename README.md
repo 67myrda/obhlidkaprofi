@@ -4,5 +4,5 @@ Miniappka pro Myrdu & Monču (Domoveo): zápis stavu oken při obhlídce, výpo�
 
 - Funguje offline (service worker), lze přidat na plochu telefonu/tabletu.
 - Data zůstávají jen v zařízení (localStorage), obhlídka se po zakázce maže.
-- Ceny podle ceníku Domoveo (servis a těsnění), upravitelné na úvodní obrazovce.
-- Aplikace: https://67myrda.github.io/obhlidkaprofi/
+- Kompletní ceník Domoveo (vč. DPH), upravitelný v appce.
+- Aplikace: https://obhlidka.iqapps.cz/
