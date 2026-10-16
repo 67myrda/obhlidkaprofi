@@ -87,6 +87,11 @@ button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(-
 .item .nm{font-weight:700}
 .item .sub{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .badge{font-size:12px;font-weight:700;border-radius:999px;padding:4px 9px;white-space:nowrap}
+.b0{background:transparent;color:var(--muted);border:1px dashed var(--muted)}
+.item.skipped{opacity:.7;border-style:dashed}
+.btn-skip{background:var(--bad);color:#fff;border-color:var(--bad);font-weight:700}
+.btn-off{opacity:.45}
+.skipnote{margin-top:12px;font-size:14px;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r);padding:10px 14px}
 .b3{background:var(--bad-bg);color:var(--bad)} .b2{background:var(--mid-bg);color:var(--mid)} .b1{background:var(--z-bg);color:var(--z)}
 .empty{text-align:center;color:var(--muted);padding:26px 10px}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -189,6 +194,7 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
         <div class="stepper"><button id="ksMinus" aria-label="Méně">−</button><output id="eKs">1</output><button id="ksPlus" aria-label="Více">+</button></div>
       </div>
     </div>
+    <div class="card" id="checks"></div>
     <div class="card stack">
       <div class="dims">
         <label class="f">Šířka (cm)<input id="eW" type="number" inputmode="decimal" step="0.1" min="0"></label>
@@ -197,7 +203,6 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
       </div>
       <div class="hint" id="dimHint">Obvod = 2 × (šířka + výška). Zadáte-li milimetry, appka je převede.</div>
     </div>
-    <div class="card" id="checks"></div>
     <div class="card stack">
       <div class="row">
         <label class="f">Datumovka – rok<input id="eRok" type="number" inputmode="numeric" min="1980" max="2030" placeholder="např. 2012"></label>
@@ -251,13 +256,13 @@ var TYPE_PL={kridlo:"okenní křídlo",balkon:"balkonové dveře",vchod:"vchodov
 var MAT={plast:"plast",drevo:"dřevo",hlinik:"hliník"};
 var ROOMS=["Obývák","Kuchyň","Ložnice","Dětský","Pracovna","Koupelna","WC","Chodba","Schodiště","Sklep"];
 var CHECKS=[
+  {k:"kov",t:"Kování, převodovka a chod (u dveří i zámek)",o:["Lehký chod","Ztuhlé, suché","Drhne, zasekává"]},
   {k:"tout",t:"Těsnění vnější (v rámu)",o:["Pružné","Opotřebené","Dožité"]},
   {k:"tin",t:"Těsnění vnitřní (na křídle)",o:["Pružné","Opotřebené","Dožité"]},
-  {k:"kov",t:"Kování, převodovka a chod (u dveří i zámek)",o:["Lehký chod","Ztuhlé, suché","Drhne, zasekává"]},
   {k:"dol",t:"3-osé centrování křídla, přítlaky",o:["Doléhá","Mírně netěsní","Drhne, netěsní"]},
   {k:"kl",t:"Klika",o:["V pořádku","Vratká, opotřebená","Poškozená"]}
 ];
-var SEV={3:"Nutné",2:"Doporučené",1:"Na zvážení"};
+var SEV={3:"Nutné",2:"Doporučené",1:"Na zvážení",0:"Neprohlédnuto"};
 var SEV_SUB={3:"bez toho se problém zhorší",2:"prevence drahých oprav",1:"když chcete mít úplný klid"};
 
 function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -278,7 +283,10 @@ function cm(v){v=parseFloat(String(v).replace(",","."));if(!isFinite(v)||v<=0)re
 
 /* ---------- business rules ---------- */
 function perim(it){var w=cm(it.w),h=cm(it.h);return (w&&h)?2*(w+h)/100*(it.ks||1):0}
+function isSkip(it){return !!it.skip}
+function anyCheck(it){var c=it.c||{};return CHECKS.some(function(k){return c[k.k]>0})}
 function offers(it){
+  if(isSkip(it))return [];
   var c=it.c||{},L=[],p=perim(it);
   var mx=Math.max(c.kov||0,c.dol||0);
   var ss=mx===3?3:mx===2?2:1;
@@ -300,7 +308,7 @@ function rate(o){
 }
 function isDisc(o){return o.kind==="servis"||o.kind==="tes"}
 function allOffers(){var L=[];(S.items||[]).forEach(function(it){L=L.concat(offers(it))});return L}
-function worst(it){return offers(it).reduce(function(a,o){return Math.max(a,o.sev)},1)}
+function worst(it){if(isSkip(it))return 0;return offers(it).reduce(function(a,o){return Math.max(a,o.sev)},1)}
 function group(list){
   var g={};
   list.forEach(function(o){
@@ -341,7 +349,10 @@ function renderBar(){
   function add(txt,cls,fn){var x=el("button",cls,txt);x.addEventListener("click",fn);b.appendChild(x)}
   $("bar").hidden=(view==="start"||view==="cenik");
   if(view==="list"){add("+ Přidat okno","btn-main",function(){newItem()});add("Výsledek →","btn-acc",function(){show("res")});}
-  if(view==="edit"){add("Uložit","btn-main",function(){saveItem(false)});add("Uložit + další","btn-acc",function(){saveItem(true)});}
+  if(view==="edit"){
+    if(draft&&anyCheck(draft)){add("Uložit","btn-main",function(){saveItem(false)});add("Uložit + další","btn-acc",function(){saveItem(true)});}
+    else{add("Neprohlédnuto → další","btn-skip",function(){saveItem(true,true)});add("Uložit + další","btn-acc btn-off",function(){toast("Vyplňte aspoň jednu kontrolu, nebo uložte jako Neprohlédnuto")});}
+  }
   if(view==="res"){add("← Okna","",function(){show("list")});}
 }
 
@@ -383,12 +394,12 @@ function renderList(){
   var box=$("listItems");box.innerHTML="";
   if(!S.items.length){box.appendChild(el("div","card empty","Zatím žádné okno.<br>Začněte tlačítkem <b>+ Přidat okno</b>."));}
   S.items.forEach(function(it){
-    var w=worst(it),b=el("button","card item");
+    var w=worst(it),b=el("button","card item"+(isSkip(it)?" skipped":""));
     var dims=(cm(it.w)&&cm(it.h))?Math.round(cm(it.w))+"×"+Math.round(cm(it.h))+" cm":"bez rozměru";
     b.innerHTML='<div class="main"><div class="nm">'+esc(it.label)+(it.ks>1?" · "+it.ks+"×":"")+'</div><div class="sub">'+esc(TYPE[it.type]+" · "+MAT[it.mat]+(it.lep?" · lepené":"")+" · "+dims+(it.rok?" · r. "+it.rok:""))+'</div></div><span class="badge b'+w+'">'+SEV[w]+'</span>';
     b.addEventListener("click",function(){editItem(it.id)});box.appendChild(b);
   });
-  var pcs=S.items.reduce(function(a,i){return a+(i.ks||1)},0);$("listMeta").textContent=pcs?("Celkem "+pcs+" ks"):"";
+  var pcs=S.items.filter(function(i){return !isSkip(i)}).reduce(function(a,i){return a+(i.ks||1)},0),nsk=S.items.filter(isSkip).length;$("listMeta").textContent=(pcs?("Prohlédnuto "+pcs+" ks"):"")+(nsk?" · neprohlédnuto "+nsk:"");
   $("btnCenik2").onclick=function(){cenikBack="list";show("cenik")};
   resetDel("delVisitWrap","btnDelVisit","Smazat obhlídku",function(){S=null;try{localStorage.removeItem(KEY)}catch(e){}toast("Obhlídka smazána");show("start")});
 }
@@ -401,7 +412,7 @@ function resetDel(wrapId,btnId,txt,fn){
 }
 
 /* edit */
-function nextLabel(){var n=S.items.length+1;return "Okno "+n}
+function nextLabel(){var mx=0;S.items.forEach(function(x){var m=/^Okno (\d+)$/.exec((x.label||"").trim());if(m)mx=Math.max(mx,+m[1])});return "Okno "+Math.max(mx+1,S.items.length+1)}
 function newItem(tpl){
   editId=null;
   var last=S.items[S.items.length-1];
@@ -421,7 +432,7 @@ function renderEdit(){
     var d=el("div","chk");d.innerHTML='<div class="t">'+esc(c.t)+'</div>';
     var sg=el("div","seg");
     c.o.forEach(function(o,i){var b=el("button","s"+(i+1),esc(o));b.id="ck_"+c.k+"_"+(i+1);b.setAttribute("aria-pressed",String(draft.c[c.k]===i+1));
-      b.addEventListener("click",function(){draft.c[c.k]=(draft.c[c.k]===i+1)?null:i+1;Array.prototype.forEach.call(sg.children,function(x,j){x.setAttribute("aria-pressed",String(draft.c[c.k]===j+1))})});sg.appendChild(b)});
+      b.addEventListener("click",function(){draft.c[c.k]=(draft.c[c.k]===i+1)?null:i+1;Array.prototype.forEach.call(sg.children,function(x,j){x.setAttribute("aria-pressed",String(draft.c[c.k]===j+1))});renderBar()});sg.appendChild(b)});
     d.appendChild(sg);ch.appendChild(d);
     if(c.k==="tin"){
       var lp=el("div","chk");lp.innerHTML='<div class="t">Typ těsnění</div>';
@@ -448,10 +459,14 @@ $("eNote").addEventListener("input",function(){draft.note=$("eNote").value});
 bindSeg("eType",function(v){draft.type=v});bindSeg("eMat",function(v){draft.mat=v});
 $("ksMinus").addEventListener("click",function(){draft.ks=Math.max(1,draft.ks-1);$("eKs").textContent=draft.ks;dimHint()});
 $("ksPlus").addEventListener("click",function(){draft.ks=Math.min(30,draft.ks+1);$("eKs").textContent=draft.ks;dimHint()});
-function saveItem(another){
+function saveItem(another,skip){
   draft.label=(draft.label||"").trim()||nextLabel();
+  var dup=S.items.some(function(x){return x.id!==draft.id&&x.label.trim().toLowerCase()===draft.label.toLowerCase()});
+  if(dup){toast("Označení „"+draft.label+"“ už máte – přidejte číslo (např. "+draft.label+" 2)");$("eLabel").focus();return}
+  if(!skip&&!anyCheck(draft)){toast("Vyplňte aspoň jednu kontrolu, nebo uložte jako Neprohlédnuto");return}
+  draft.skip=!!skip;
   if(editId){S.items=S.items.map(function(x){return x.id===editId?draft:x})}else S.items.push(draft);
-  persist();toast("Uloženo: "+draft.label);
+  persist();toast((skip?"Neprohlédnuto: ":"Uloženo: ")+draft.label);
   if(another){newItem({type:draft.type,mat:draft.mat,rok:draft.rok,lep:draft.lep})}else show("list");
 }
 
@@ -459,7 +474,8 @@ function saveItem(another){
 function renderRes(){
   var d=new Date();$("rDate").textContent=d.toLocaleDateString("cs-CZ")+(S.city?" · "+S.city:"");
   $("rTitle").textContent="Výsledek obhlídky"+(S.client?" – "+S.client:"");
-  var pieces=S.items.reduce(function(a,i){return a+(i.ks||1)},0);
+  var pieces=S.items.filter(function(i){return !isSkip(i)}).reduce(function(a,i){return a+(i.ks||1)},0);
+  var skipped=S.items.filter(isSkip).map(function(i){return i.label});
   var years=S.items.map(function(i){return parseInt(i.rok,10)}).filter(function(y){return y>1900});
   var oldest=years.length?Math.min.apply(null,years):null;
   var all=allOffers(),nIss=all.filter(function(o){return o.sev>=2}).length;
@@ -476,6 +492,7 @@ function renderRes(){
       r.innerHTML='<div class="d"><b>'+esc(lt.t)+'</b><span>'+esc(x.labels.join(", "))+(lt.d?" · "+esc(lt.d):"")+'</span></div><div class="q"><b>'+esc(lt.q)+'</b><span>'+kc(x.price*(isDisc(x)?(1-sl/100):1))+'</span></div>';t.appendChild(r)});
     tiers.appendChild(t);
   });
+  if(skipped.length)tiers.appendChild(el("div","skipnote","Neprohlédnuto (nezapočítáno): "+esc(skipped.join(", "))));
   setSeg("segScope",S.scope||2);setSeg("segSleva",sl);
   var sc=+(S.scope||2),inc=all.filter(function(o){return o.sev>=sc});
   var sub=inc.reduce(function(a,o){return a+rate(o)*(isDisc(o)?(1-sl/100):1)},0);
@@ -507,9 +524,11 @@ function renderPro(inc){
     }
   });
   var kl=g.filter(function(y){return y.kind==="klicka"})[0];if(kl)h+='<div class="kv"><span>Klička</span><b>'+kl.n+' ks</b></div>';
-  var nadr=S.items.filter(function(i){return cm(i.w)>130||i.troj}).map(function(i){return i.label});
+  var nadr=S.items.filter(function(i){return !isSkip(i)&&(cm(i.w)>130||i.troj)}).map(function(i){return i.label});
   var nar=S.items.filter(function(i){return i.nar}).map(function(i){return i.label});
   h+='<div class="kv"><span>Nadrozměr</span><b>'+(nadr.length?esc(nadr.join(", ")):"ne")+'</b></div>';
+  var sk=S.items.filter(isSkip).map(function(i){return i.label});
+  if(sk.length)h+='<div class="kv"><span>Neprohlédnuto</span><b>'+esc(sk.join(", "))+'</b></div>';
   h+='<div class="kv"><span>Vyšší náročnost</span><b>'+(nar.length?esc(nar.join(", ")):"ne")+'</b></div>';
   h+='<div style="margin-top:10px;font-weight:700">Text do poznámky</div><pre class="note" id="noteTxt">'+esc(noteText())+'</pre><button class="btn-main" id="btnCopy" style="width:100%">Zkopírovat poznámku</button>';
   box.innerHTML=h;
@@ -530,6 +549,7 @@ function wipeBtn(){
 }
 function noteText(){
   var lines=S.items.map(function(i){
+    if(isSkip(i))return "• "+i.label+(i.ks>1?" ("+i.ks+"×)":"")+" – NEPROHLÉDNUTO (servis se neprovádí)";
     var c=i.c||{},bits=[];
     CHECKS.forEach(function(k){var v=c[k.k];if(v>1)bits.push(k.t.split(" (")[0].toLowerCase()+": "+k.o[v-1].toLowerCase())});
     var dims=(cm(i.w)&&cm(i.h))?Math.round(cm(i.w))+"×"+Math.round(cm(i.h))+" cm":"";
@@ -543,7 +563,8 @@ $("btnDemo").addEventListener("click",function(){
     {id:uid(),label:"Obývák",type:"kridlo",mat:"plast",ks:2,w:"120",h:"150",rok:"2011",troj:false,nar:false,note:"",lep:false,c:{tin:2,tout:3,kov:2,dol:1,kl:1}},
     {id:uid(),label:"Balkon",type:"balkon",mat:"plast",ks:1,w:"90",h:"220",rok:"2011",troj:false,nar:false,note:"klient si stěžuje na průvan",lep:true,c:{tin:3,tout:3,kov:3,dol:3,kl:2}},
     {id:uid(),label:"Kuchyň",type:"kridlo",mat:"plast",ks:1,w:"100",h:"120",rok:"2011",troj:false,nar:false,note:"",lep:false,c:{tin:1,tout:2,kov:2,dol:1,kl:3}},
-    {id:uid(),label:"Ložnice",type:"kridlo",mat:"plast",ks:1,w:"140",h:"150",rok:"2014",troj:false,nar:false,note:"",c:{tin:1,tout:1,kov:1,dol:1,kl:1}}
+    {id:uid(),label:"Ložnice",type:"kridlo",mat:"plast",ks:1,w:"140",h:"150",rok:"2014",troj:false,nar:false,note:"",c:{tin:1,tout:1,kov:1,dol:1,kl:1}},
+    {id:uid(),label:"Okno 5",type:"kridlo",mat:"plast",ks:1,w:"",h:"",rok:"",troj:false,nar:false,note:"klient nechtěl",skip:true,c:{}}
   ],scope:2,sleva:0,created:Date.now()};persist();show("res");toast("Načtena ukázka – smažete ji v seznamu oken");
 });
 $("btnBackTop").addEventListener("click",function(){if(view==="cenik"){show(S&&cenikBack==="list"?"list":(S?"list":"start"))}else show("list")});
