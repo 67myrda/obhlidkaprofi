@@ -142,10 +142,69 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:9}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
+/* ---------- 🛟 Postup ---------- */
+.btn-lb{min-height:44px;min-width:44px;padding:0 10px;font-size:22px;line-height:1;background:transparent;flex:none}
+.pov{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pov .wrap{padding-block:0 60px}
+.pov-top{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:10px;margin-bottom:12px}
+.pov-top .r1{display:flex;align-items:center;gap:8px}
+.pov-top h2{all:unset;font-size:19px;font-weight:800;flex:1}
+.pov-top .seg{margin-top:8px}
+.pov-close{min-width:48px;font-size:18px;font-weight:700}
+.pv-prog{display:flex;align-items:center;gap:10px;margin:2px 0 10px}
+.pv-prog .trk{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.pv-prog .trk i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .2s}
+.pv-prog b{font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+.pv-tools{display:flex;gap:8px;margin-bottom:12px}
+.pv-tools button{flex:1;min-height:42px;font-size:14px;padding:8px}
+.pv-tools button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.pv-phil{background:var(--ink);color:var(--ink-fg);border-radius:var(--r);padding:12px 14px;font-size:14px;margin-bottom:12px}
+.pv-phil b{color:var(--accent)}
+.ph{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.ph.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.ph.done{opacity:.6}
+.ph-h{display:flex;gap:12px;align-items:flex-start;padding:12px 14px}
+.ph-ck{flex:none;width:40px;height:40px;min-height:40px;padding:0;border-radius:50%;border:2px solid var(--muted);background:transparent;font-size:20px;font-weight:800;color:var(--ok)}
+.ph.done .ph-ck{background:var(--ok-bg);border-color:var(--ok)}
+.ph-m{flex:1;min-width:0}
+.ph-t{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ph-t span{font-weight:500;text-transform:none;letter-spacing:0}
+.ph-hes{font-size:17px;font-weight:800;line-height:1.3;margin-top:3px;text-wrap:pretty}
+.ph details{border-top:1px solid var(--line)}
+.ph summary{cursor:pointer;padding:10px 14px;font-size:14px;font-weight:700;color:var(--z);list-style:none}
+.ph summary::-webkit-details-marker{display:none}
+.ph details[open] summary{border-bottom:1px dashed var(--line)}
+.ph .its{padding:4px 14px 12px}
+.pi{padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px;line-height:1.45}
+.pi:last-child{border-bottom:0}
+.pi i{font-style:italic}
+.pi .why{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+.pi-h{font-weight:800;font-size:14px;margin:12px 0 0;color:var(--fg)}
+.pi-a,.pi-w{border-radius:10px;padding:8px 10px;margin:8px 0;font-size:14px;border:0}
+.pi-a{background:var(--ok-bg);color:var(--fg)} .pi-a::before{content:"Appka · ";font-weight:800;color:var(--ok)}
+.pi-w{background:var(--mid-bg);color:var(--fg)}
+.tg{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:2px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
+.tg.J{background:#2c6e8f} .tg.K{background:#b26b00} .tg.S{background:#b8392a} .tg.N{background:#5a3f8c}
+.pov.cmp .ph-hes{font-size:21px}
+.pov.cmp .ph details,.pov.cmp .pv-phil,.pov.cmp .pv-extra{display:none}
+.pov.cmp .ph.done .ph-hes{font-size:15px;font-weight:600}
+.pv-extra{margin-top:16px}
+.pv-extra ol{margin:0;padding-left:22px}
+.pv-extra li{margin:8px 0;font-size:15px}
+/* slovník */
+.sl-it{padding:10px 14px;border-top:1px solid var(--line)}
+.sl-it:first-child{border-top:0}
+.sl-it b{display:block;font-size:16px}
+.sl-it span{font-size:14.5px;color:var(--muted)}
+.sl-it.own b::after{content:"vlastní";font-size:11px;font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:1px 7px;margin-left:8px;vertical-align:2px}
+.sl-act{display:flex;gap:6px;margin-top:6px}
+.sl-act button{min-height:34px;padding:4px 12px;font-size:13px}
+.sl-add{margin-bottom:12px}
+.sl-add input{font-size:16px}
 </style>
 </head><body>
 <div class="wrap">
-<header class="top"><span class="dot"></span><h1><span id="hTitle">Obhlídka<span class="profi">PROFI</span></span><small id="hSub">servis oken · Domoveo</small></h1><button id="btnBackTop" class="btn-ghost" hidden>← Zpět</button></header>
+<header class="top"><span class="dot"></span><h1><span id="hTitle">Obhlídka<span class="profi">PROFI</span></span><small id="hSub">servis oken · Domoveo</small></h1><button id="btnBackTop" class="btn-ghost" hidden>← Zpět</button><button id="btnPostup" class="btn-lb" aria-label="Postup prohlídky" title="Postup prohlídky">🛟</button></header>
 
 <!-- VIEW: start -->
 <section id="vStart" hidden>
@@ -232,6 +291,17 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
 </section>
 </div>
 
+<!-- 🛟 POSTUP (overlay, nemění rozpracovanou obhlídku) -->
+<div class="pov" id="pov" hidden role="dialog" aria-label="Postup prohlídky">
+ <div class="wrap">
+  <div class="pov-top">
+   <div class="r1"><span style="font-size:24px">🛟</span><h2 id="povTitle">Postup prohlídky</h2><button class="pov-close btn-ghost" id="povClose" aria-label="Zavřít">✕</button></div>
+   <div class="seg" id="povTabs"><button data-v="f" aria-pressed="true">Fáze návštěvy</button><button data-v="s" aria-pressed="false">📖 Slovník</button></div>
+  </div>
+  <div id="povF"></div>
+  <div id="povS" hidden></div>
+ </div>
+</div>
 <div class="bar" id="bar"><div class="in" id="barIn"></div></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -576,6 +646,137 @@ document.addEventListener("visibilitychange",function(){if(document.visibilitySt
 /* example content for first view when nothing is stored */
 show(S?"list":"start");
 if(S)wake();
+})();
+</script>
+<script>
+/* ---------- 🛟 Postup prohlídky + 📖 Slovník (samostatný modul) ---------- */
+(function(){
+"use strict";
+var PD={"phil": "<b>Filozofie M&amp;M: technik, ne obchodník.<\/b> Jako opravář pračky: přijdu, soustředěně posoudím, klient napjatě čeká, pak rozvážně vyřknu výsledek šetření. Respekt, pevnost, žádný tlak. Chceme tržbu, dobrý pocit klienta i doporučení – a to jde jen, když je to celé poctivé.<br>\n<b>Jirka v autě:<\/b> „Věří ti jako technikovi, ne jako obchodníkovi. Vidí, že jim jdeš pomoct.“", "faze": [{"n": 0, "t": "Před zazvoněním", "m": "v autě, 2 min", "h": "Kdo rozhoduje? Co ho trápí? Návleky, tablet, laser.", "i": [{"k": "N", "x": "Přečíst poznámku u zakázky v Domoveu („co si o zakázce říkáme“) – co klient řekl dispečinku, kdo rozhoduje.", "w": ""}, {"k": "J", "x": "Když jste dřív, zavolat: <i>„Dobrý den, tady [jméno], Domoveo okna. Mám k vám dnes přijet na diagnostiku oken – skončil jsem malinko dřív, byl bych schopný dorazit o půl hodiny dřív?“<\/i> A když ne: <i>„Žádný problém, přizpůsobíme se.“<\/i>", "w": "Jirka to tak udělal z auta – klient ocení ohleduplnost."}, {"k": "K", "x": "Role: Myrda mluví, ukazuje a diktuje. Monča zapisuje (ObhlídkaPROFI + Domoveo), fotí, hlídá čas a e-mail.", "w": ""}, {"k": "A", "x": "ObhlídkaPROFI → Začít obhlídku (příjmení, město). Laser a bílá křída po ruce."}]}, {"n": 1, "t": "Příchod a představení", "m": "0–3 min", "h": "Úsměv, ověřit klienta, kdo jsme – krátce. Pak: Kde vás to trápí nejvíc?", "i": [{"k": "J", "x": "<i>„Jinak o nás víte něco? Ať víte, kdo s kým máte tu čest.“<\/i>", "w": "Přirozený, lidský úvod místo naučené řeči."}, {"k": "J", "x": "<i>„Jsme česká firma, působíme po celé republice a jmenujeme se Domoveo. To ‚EO‘ znamená energie a okna – firma dělá i fotovoltaiku a energetiku, ale já jsem z divize okna.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Děláme veškeré pozáruční servisy oken. Všechny druhy – plastová, dřevěná, hliníková, eurookna – a od všech výrobců.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Upřímně jsme to začali dělat, protože lidem neměl kdo servis oken dělat. Trošku jsme vyplnili díru na trhu. A těší mě, že lidem nemusíme nic vnucovat – je to služba, kterou lidi víceméně potřebují.“<\/i>", "w": "Silná věta pro vaši filozofii: technik, který nic necpe."}, {"k": "K", "x": "<i>„Dobrý den, jsem technik z Domovea, dnes vám zkontroluju okna.“<\/i> (návleky hned ve dveřích, nesedat ke stolu)", "w": ""}, {"k": "S", "x": "<i>„Kde vás to trápí nejvíc?“<\/i> … a pak jeho slovy zopakovat: <i>„Takže hlavně vám vadí, že u okna v obýváku táhne. Podívám se přesně na tohle.“<\/i>", "w": "Klíč celé návštěvy – podle odpovědi víš, co potřebuje slyšet (teplo / klid / peníze / pochopení)."}, {"k": "J", "x": "Z auta: <i>„Nepřijít a hned se vrhnout – prohodit pár slov. Ale žádné velké divadlo, halo efekt tady není potřeba.“<\/i>", "w": ""}]}, {"n": 2, "t": "Jak to bude probíhat", "m": "1 min", "h": "Projdu všechna okna – co najdu, ukážu – vy posoudíte, jestli to dává smysl.", "i": [{"k": "J", "x": "<i>„Dělám to tak, že se snažím všechna okýnka pěkně prohlédnout, mrknu se na všechny komponenty. Když tam najdeme nějaký problém, ukážu vám ho – a vy si sám zhodnotíte, jestli vám to bude dávat smysl. Takhle jednoduše.“<\/i>", "w": "Předá klientovi kontrolu – žádný tlak, a přitom jasný rámec."}, {"k": "J", "x": "<i>„Nebudu hodnotit okna podle prvního, snažím se vždycky okouknout všechno.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Tak já si s dovolením vezmu brýle, už je občas potřebuju.“<\/i>", "w": "Drobný lidský moment, který uvolní atmosféru. Hodí se i k vám."}, {"k": "S", "x": "Začni tam, kde to klienta trápí: <i>„Začneme u toho okna, o kterém jste mluvil.“<\/i>", "w": ""}]}, {"n": 3, "t": "Diagnostika okna – 4 kroky", "m": "10–12 min", "h": "Kování → těsnění → centrování → přítlak. Klient si to osahá sám.", "i": [{"k": "A", "x": "Pořadí sedí s ObhlídkaPROFI: Kování, převodovka → Těsnění vnější, vnitřní, typ → 3-osé centrování → Klika. Diktuj Monče nahlas."}, {"k": "H", "x": "a) Kování a převodovka"}, {"k": "J", "x": "<i>„Vždycky je potřeba opravdu otevřít a zavřít. První věc, kterou kontroluju, je, jak jde převodovka. Protože 99 % lidí kování pravidelně nepromazává.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Je to úplně stejné jako s převodovkou nebo motorem v autě – když se nemaže, zadře se.“<\/i>", "w": "Přirovnání k autu chápe každý."}, {"k": "J", "x": "<i>„Když to lidi nechají dlouho, má to tendenci se zadírat.“<\/i>", "w": ""}, {"k": "H", "x": "b) Těsnění"}, {"k": "J", "x": "<i>„Nové těsnění, když se na něj sáhne, působí takovým vlhkým, nasilikonovaným dojmem. A tohle už je, jako když sáhnete na papír.“<\/i>", "w": "Nech klienta sáhnout – sám to ucítí. Nejsilnější moment celé prohlídky."}, {"k": "J", "x": "<i>„Těsnění měníme zhruba po 12 až 15 letech.“<\/i>", "w": "Pozor: karta 40 minut uvádí u rámu ~10 let, u křídla ~15 let. Sjednotit s Jirkou."}, {"k": "J", "x": "Lepené × nelepené: <i>„Pokud těsnění nejde rozumnou silou vytáhnout, je lepené. Technik ho musí vyšťourat, pročistit drážku a dát hmotu, která ho zase přilepí.“<\/i> + <i>„Vidíte to, co já? Tady je lepené a tady nelepené.“<\/i>", "w": "„Vidíte to, co já?“ – skvělá věta, vtáhne klienta do posouzení."}, {"k": "J", "x": "<i>„Víte, jak to řeším? Okýnko si vždycky nafotím pro technika, který to bude dělat. On pak přesně ví, do čeho jde.“<\/i>", "w": "Zároveň vysvětlí, proč fotíte – působí profesionálně."}, {"k": "H", "x": "c) 3-osé centrování křídla"}, {"k": "J", "x": "<i>„Okýnka většinou drhnou. Když zaberu za vršek, spodek drhne. Z jednoduchého důvodu – gravitace. Je to sedlé.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Blbé je, že hodně lidí se to snaží zvednout sami. Jenže když se to centruje, musí se to řešit vertikálně, horizontálně i diagonálně – jinak to za pár měsíců spadne zas. Náš technik to centruje do tří směrů, aby to vydrželo, protože barák pracuje a působí na něj změny teplot.“<\/i>", "w": ""}, {"k": "H", "x": "d) Přítlak"}, {"k": "J", "x": "<i>„Když se klička dá do zavřené polohy, řeší se takzvaný přítlak. Když to jde až příliš snadno a není tam trošku odpor – tomu říkáme mělký přítlak – okno prostě nedoléhá.“<\/i> … <i>„Není to jaderná fyzika.“<\/i>", "w": "„Není to jaderná fyzika“ – uklidní klienta, že to pochopí."}, {"k": "J", "x": "<i>„Až přijde větší zima, zjistíte, že nahoře u okna je chladněji než dole. A to je divné, protože teplý vzduch stoupá nahoru – tudy vám jde teplo ven.“<\/i>", "w": "Spojení s motivem „teplo“ z Co potřebuje slyšet."}, {"k": "K", "x": "Test papírem / prsty: přivřít list a zatáhnout – klient vidí sám (ověřit s Jirkou).", "w": ""}, {"k": "N", "x": "Opravář pračky: během diagnostiky mluv k oknu a k Monče, ne ke klientovi. Krátce, věcně. Klient čeká na výsledek.", "w": ""}]}, {"n": 4, "t": "Obchůzka ostatních oken + měření", "m": "8–10 min", "h": "Každé okno: otevřít/zavřít, osahat těsnění, změřit, nafotit rohy, diktovat.", "i": [{"k": "J", "x": "Z auta: <i>„Měříš všechno. Okna jsou různá a metráž těsnění musíš změřit.“<\/i> (obvod = (šířka + výška) × 2)", "w": ""}, {"k": "J", "x": "Z auta: měřidlo klientovi i ukaž – <i>„musíš ještě ukázat, jak to chodí“<\/i>. Laser působí technicky a profesionálně.", "w": ""}, {"k": "W", "x": "<b>Fotky vždy:<\/b> těsnění vnější i vnitřní – horní a dolní roh (4 fotky stačí). Kování a panty fotit, když jsou degradované. Jirka na fotky jednou zapomněl a musel klientovi volat, ať je pošle přes WhatsApp."}, {"k": "S", "x": "Na 1–2 dalších oknech nech klienta zase něco zkusit – ať slyší, že to máš srovnané.", "w": ""}, {"k": "A", "x": "Okno po okně v ObhlídkaPROFI. Neprohlédnuté okno uložit tlačítkem „Neprohlédnuto → další“. Okno označit křídou stejně jako v appce."}]}, {"n": 5, "t": "Výsledek šetření („ortel“)", "m": "5 min", "h": "Uklidnit → nález ve 3 úrovních → Dává vám to smysl? → ticho.", "i": [{"k": "J", "x": "<i>„Já vás zas uklidním – nemáte to v kritickém stavu. Ale řekl bych to takhle: když to nebudete řešit, stejně to budete řešit. Co je lepší – prevence, nebo řešení problémů?“<\/i> (klient: prevence) <i>„Bude vás to teď stát míň peněz.“<\/i>", "w": "Výborná sekvence: uklidnit, pak otázka, na kterou si klient odpoví sám."}, {"k": "J", "x": "<i>„Viděl jsem okna v horším stavu a byli jsme schopni je dát dohromady.“<\/i>", "w": ""}, {"k": "J", "x": "Ortel: <i>„Stoprocentně bych tady udělal promazání vnitřní mechaniky kování a převodovky, výměnu vnějšího i vnitřního těsnění, vycentrování okýnek do tří směrů, protože jsou spadlá, a správné nastavení přítlaku.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Když promažeme, vycentrujeme, vyměníme těsnění a nastavíme přítlak, budou okna svým způsobem v lepším stavu, než když byla nová.“<\/i>", "w": "Silné, ale ověř u Jirky, ať to umíš podložit (novější typ těsnění)."}, {"k": "K", "x": "Tři úrovně z ObhlídkaPROFI – tablet otočit ke klientovi: <i>„Rozdělím to na tři věci: nutné, doporučené a na zvážení.“<\/i>", "w": ""}, {"k": "J", "x": "Z auta – kulantní otázka: <i>„Tohle mně jako okenáři dává smysl. Dává vám to takhle smysl?“<\/i> … a mlčet.", "w": "„Lepší je jim necpat, že to musí nutně mít. Dát jim pocit, že se rozhodují sami, svobodně.“"}, {"k": "S", "x": "Spoj s jeho problémem: <i>„Po servisu vám u toho okna táhnout nebude a do dalšího servisu máte klid.“<\/i>", "w": ""}, {"k": "K", "x": "Když váhá: <i>„Je to vaše rozhodnutí. Já vám jen říkám, co bych udělal u sebe doma.“<\/i>", "w": ""}]}, {"n": 6, "t": "Cena a poctivost", "m": "2 min", "h": "Cena podle ceníku. Co se může zkomplikovat, řeknu dopředu.", "i": [{"k": "J", "x": "Komplikované okno řekni na rovinu: <i>„Technik si poradí, nafotím mu to. Možná bude potřebovat půl hodiny navíc. Vy máte tu výhodu, že cena je daná a podle ceny se dělá práce.“<\/i>", "w": ""}, {"k": "J", "x": "<i>„A kdyby se nedej bože stalo, že tady těsnění nepůjde vyměnit, tak vám ten metr dva odečteme.“<\/i>", "w": "Poctivost předem = důvěra = doporučení."}, {"k": "J", "x": "<i>„Bude to dohromady [částka]. Platí se až po servisu – hotově, nebo QR kódem.“<\/i>", "w": ""}, {"k": "J", "x": "Pro sebe (z auta): není to „lámání za 50 000“ – rozhodnutí je pro klienta malé. Žádná nervozita z ceny.", "w": ""}]}, {"n": 7, "t": "Zápis do Domovea a termín", "m": "5 min", "h": "Údaje → e-mail → souhlasy → podpis → termín hned s klientem.", "i": [{"k": "J", "x": "Otázky do formuláře: <i>„Jedná se o byt?“ · „Topíte elektřinou, plynem, nebo centrálně?“ · „Takže okna jsou nějakých 18 let a velká revize nebyla?“<\/i>", "w": ""}, {"k": "J", "x": "<i>„Během minuty dvou vám přijde cenová nabídka na e-mail – klidně si ji zkontrolujte.“<\/i>", "w": ""}, {"k": "J", "x": "Termín vybrat rovnou s klientem v appce (směny, ráno/odpoledne) a zeptat se: <i>„Bude vám ten čas stačit?“<\/i>", "w": ""}, {"k": "J", "x": "Obava z nepořádku (silikon): <i>„Klidně tam dejte noviny nebo kartony, nic proti tomu. Technik používá kvalitní okenní mazivo.“<\/i>", "w": "Vezmi obavu vážně, dej jednoduchou radu."}, {"k": "J", "x": "Rozhoduje někdo jiný (Jirkův příběh: paní 92 let, rozhoduje syn v Praze): zavolat mu přímo, poslat nabídku e-mailem – syn večer potvrdil SMSkou a servis byl domluvený.", "w": ""}, {"k": "A", "x": "Pro přepis do Domovea → zkopírovat poznámku pro servisáka. Když klient potřebuje čas: „Odeslat bez podpisu“."}]}, {"n": 8, "t": "Doporučení", "m": "3–5 min", "h": "Spokojenost → prosba → kdo vás napadl první? → vizitka / opt-in.", "i": [{"k": "J", "x": "<i>„Mám na vás jednu prosbu. Myslím, že byste mě mohl někomu doporučit – může to být známý, kamarád, kolega z práce. Řeknu úplně na rovinu: je to pro mě strašně cenné, protože je to naše nejlepší reklama.“<\/i>", "w": "Upřímné, osobní, žádné „nemáte nějaké kontakty?“."}, {"k": "J", "x": "Když klient chce předat sám: dát vizitku s číslem (Domoveo + vaše) – <i>„Řeknete, že u vás byl ten a ten, a tady máte kontakt.“<\/i>", "w": ""}, {"k": "K", "x": "<i>„Kdo vás napadl jako první, komu by se taková kontrola hodila – a proč?“<\/i> Projít rodina · přátelé · práce · sousedé/SVJ.", "w": ""}, {"k": "N", "x": "Opt-in: klient dá známému vědět sám, teprve pak kontakt zapisujete. Dárek až po otázkách (klička / perlátor).", "w": ""}, {"k": "J", "x": "Z auta: předjednané kontakty (např. místopředseda SVJ, který dohodí sousedy) jdou „najisto“ – zadávat jako vlastní zakázku / doporučení.", "w": ""}]}, {"n": 9, "t": "Rozloučení a po odchodu", "m": "2 min", "h": "Poděkovat, termín zopakovat. V autě: fotky? poznámka pro technika? smazat obhlídku.", "i": [{"k": "N", "x": "<i>„Děkujeme za čas. Servisák přijede [den, čas], všechno bude mít v poznámkách. Kdyby cokoli, číslo máte.“<\/i>", "w": ""}, {"k": "N", "x": "V autě: jsou fotky všech těsnění? Poznámka pro technika (nadrozměr, obtížné okno)? V ObhlídkaPROFI „Vymazat celý zápis“.", "w": ""}, {"k": "J", "x": "Z auta: <i>„Je dobré si říct zkušenosti – s čím přijdeš, co se ti stalo, co jsi nevěděl. Já se pořád učím, i když to dělám přes třicet let.“<\/i> → 2 minuty debriefing s Mončou po každé návštěvě.", "w": ""}]}], "rady": ["<b>Technik, ne obchodník.<\/b> „Věří ti jako technikovi. Vidí, že jim jdeš pomoct.“", "<b>Necpat.<\/b> „Lepší je jim necpat, že to musí nutně mít. Dát jim pocit, že se rozhodují sami, svobodně.“ Pak kulantní otázka: „Tohle mně jako okenáři dává smysl. Dává vám to smysl?“", "<b>Rutina = odbornost.<\/b> Myrda si všiml: Jirka jede svou rutinu a moc nerozvíjí debaty – a klienti ho pak vnímají jako ještě většího odborníka. Jirka: „Nebudu tam dělat šaškoviny. Jsem tam odborník. Jinak se to rozkecá a odvádí od tématu.“", "<b>Žádné divadlo na začátku.<\/b> Prohodit pár slov, ale halo efekt jako u předváděcích akcí tady není potřeba. A každou situaci stejně nenapasuješ – „děláme to, co lidi chtějí a co potřebujou“.", "<b>Fotky těsnění vždycky.<\/b> Vnější i vnitřní, horní a dolní roh = 4 fotky. Kování a panty, když vidíš degradaci. Technik pak ví, do čeho jde.", "<b>Měř všechno<\/b> – okna jsou různá. A ukaž klientovi, jak měřidlo funguje.", "<b>Základní servis<\/b> = první položka (křídlo, balkon, vchod) obsahuje mazání, servis, centrování i přítlak. Když se klient cuká s těsněním, dá se jen vnitřní – u Jirkova klienta bylo jasné, že to chce vyřešit celé.", "<b>Vnímej člověka.<\/b> „Tady jsem věděl, cítil, že to pán chce řešit.“ Předjednaný klient = jdeš najisto.", "<b>Ceny v hlavě:<\/b> 221 Kč/m plastové těsnění, 197 Kč/m eurookna. Provize se počítá z ceny bez DPH (÷ 1,12).", "<b>Rozhoduje někdo jiný?<\/b> Zavolat mu, poslat nabídku e-mailem – funguje i na dálku.", "<b>Učení:<\/b> „Nepotřebuju hodnotit první akci. Potřebuju hodnotit pátou, sedmou, desátou.“ Neúspěšný týden se stane každému – změníš dvě věci a funguje. Jirka nemá rád diktafony, radši vidí naživo na doprovodu.", "<b>Tempo:<\/b> doporučení cca 3 návštěvy denně, aspoň 10 za týden (počítat se stornem). Vaše úvaha: pondělí jen Domoveo, plus odpoledne út–čt.", "<b>Vlastní akce:<\/b> při objíždění firem (Pro-Factor) „vždy se dá vychytat situace, kdy se to dá zmínit“.", "<b>Tvoje vlastní otázka z auta:<\/b> co když se okno nedá úplně otevřít? Připravit si dopředu větu a postup (nafotit, poznámka technikovi, „cena je daná“)."], "slov": [["Rám", "pevná část zabudovaná ve zdi"], ["Křídlo", "otevírací část okna (jedno okno může mít víc křídel)"], ["Falc (polodrážka)", "„schod“ po obvodu rámu/křídla, kam křídlo dosedá a kde je těsnění"], ["Kování", "celý mechanismus v drážce: převodovka, táhla, rohové převody, panty, uzávěry"], ["Převodovka", "díl pod klikou – převádí otočení kliky na pohyb táhel; 99 % lidí ji nemaže"], ["Planžeta / táhlo", "kovová lišta v drážce křídla, posouvá uzavírací čepy"], ["Rohový převod", "díl v rohu křídla, který „převede“ pohyb táhla za roh"], ["Nůžky", "horní kování, které drží křídlo při sklápění (ventilace)"], ["Pant / závěs", "spodní a horní uložení křídla; spodní nese celou váhu"], ["Uzavírací čep (excentr)", "„váleček“ na křídle; jeho natočením se nastavuje přítlak"], ["Protikus / rámový uzávěr", "plíšek na rámu, do kterého čep zajede"], ["Přítlak", "jak silně křídlo tlačí na těsnění; „mělký přítlak“ = jde moc lehce, nedoléhá"], ["Letní / zimní režim", "slabší / silnější přítlak natočením čepů"], ["3-osé centrování", "vyrovnání křídla vertikálně, horizontálně a diagonálně"], ["Těsnění vnější / vnitřní", "gumový pásek v rámu / na křídle; nové je „vlhké“, staré „jako papír“"], ["Lepené × nelepené", "lepené nejde rozumnou silou vytáhnout – technik ho vyšťourá a lepí"], ["Zasklívací lišta", "lišta, která drží sklo v křídle"], ["Distanční rámeček", "lišta mezi skly – často na ní bývá datum výroby"], ["Datumovka", "datum výroby okna (rámeček mezi skly, potisk v rámu, nálepka)"], ["Mikroventilace", "pootočení kliky do mezipolohy – křídlo se jen nepatrně pootevře"], ["Pojistka chybné manipulace", "brání otočení kliky, když je křídlo otevřené"], ["Snapper", "pojistka proti průvanu (drží otevřené křídlo)"], ["Hokejka", "spodní díl kování u starších MACO a GU"], ["Vysklení / zvednutí křídla", "když už křídlo nejde nastavit na pantech"], ["Nadrozměr", "okno/dveře nad 130 cm šířky nebo těžké trojsklo"]]};
+var PK="obhlidka.postup.v1", SK="obhlidka.slovnik.v1", RESET_H=4;
+function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(t){var x=$("toast");if(!x)return;x.textContent=t;x.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(function(){x.hidden=true},2000)}
+var P=ld(PK,{done:[],cmp:false,tab:"f",ts:0});
+var OWN=ld(SK,[]);
+var TAG={J:"Jirka",K:"40 min",S:"Slyšet",N:"Návrh"};
+var editIdx=-1, delIdx=-1;
+var N=PD.faze.length;
+
+function savP(){sv(PK,P)}
+function isDone(n){return P.done.indexOf(n)>=0}
+function curPhase(){for(var i=0;i<N;i++)if(!isDone(PD.faze[i].n))return PD.faze[i].n;return -1}
+
+function open(){
+  if(P.done.length&&P.ts&&Date.now()-P.ts>RESET_H*3600e3){P.done=[];P.ts=0;savP();toast("Nová návštěva – fáze vynulovány")}
+  $("pov").hidden=false;document.body.style.overflow="hidden";render();
+  if(P.tab==="f"&&P.cmp)setTimeout(scrollCur,30);
+}
+function close(){$("pov").hidden=true;document.body.style.overflow=""}
+function scrollCur(){var c=$("pov").querySelector(".ph.cur");if(c){var top=c.getBoundingClientRect().top+$("pov").scrollTop-130;$("pov").scrollTo({top:top,behavior:"smooth"})}}
+
+function render(){
+  $("pov").classList.toggle("cmp",!!P.cmp);
+  [].forEach.call($("povTabs").children,function(b){b.setAttribute("aria-pressed",String(b.dataset.v===P.tab))});
+  $("povF").hidden=P.tab!=="f";$("povS").hidden=P.tab!=="s";
+  $("povTitle").textContent=P.tab==="f"?"Postup prohlídky":"Slovník okenních pojmů";
+  if(P.tab==="f")renderF();else renderS();
+}
+
+function renderF(){
+  var d=P.done.length,cur=curPhase(),h="";
+  h+='<div class="pv-prog"><div class="trk"><i style="width:'+Math.round(d/N*100)+'%"></i></div><b>hotovo '+d+' / '+N+'</b></div>';
+  h+='<div class="pv-tools"><button id="pvCmp" aria-pressed="'+(!!P.cmp)+'">'+(P.cmp?'✓ Při návštěvě':'Při návštěvě')+'</button><button id="pvNew">Nová návštěva</button></div>';
+  h+='<div class="pv-phil">'+PD.phil+'</div>';
+  PD.faze.forEach(function(f){
+    var dn=isDone(f.n);
+    h+='<div class="ph'+(dn?' done':'')+(f.n===cur?' cur':'')+'" data-n="'+f.n+'"><div class="ph-h"><button class="ph-ck" data-ck="'+f.n+'" aria-pressed="'+dn+'" aria-label="Fáze '+f.n+' hotová">'+(dn?'✓':'')+'</button>';
+    h+='<div class="ph-m"><div class="ph-t">'+f.n+' · '+esc(f.t)+' <span>· '+esc(f.m)+'</span></div><div class="ph-hes">'+esc(f.h)+'</div></div></div>';
+    var cnt=f.i.filter(function(x){return TAG[x.k]}).length;
+    h+='<details><summary>Věty a poznámky ('+cnt+') ▾</summary><div class="its">';
+    f.i.forEach(function(x){
+      if(x.k==="H")h+='<div class="pi-h">'+x.x+'</div>';
+      else if(x.k==="A")h+='<div class="pi-a">'+x.x+'</div>';
+      else if(x.k==="W")h+='<div class="pi-w">'+x.x+'</div>';
+      else h+='<div class="pi"><span class="tg '+x.k+'">'+TAG[x.k]+'</span>'+x.x+(x.w?'<span class="why">'+x.w+'</span>':'')+'</div>';
+    });
+    h+='</div></details></div>';
+  });
+  h+='<details class="pro pv-extra"><summary>Jirkovy rady z auta ('+PD.rady.length+') ▾</summary><div class="body"><ol>'+PD.rady.map(function(r){return '<li>'+r+'</li>'}).join("")+'</ol></div></details>';
+  $("povF").innerHTML=h;
+}
+
+function allTerms(){
+  var L=PD.slov.map(function(s){return{t:s[0],d:s[1],own:-1}});
+  OWN.forEach(function(o,i){L.push({t:o.t,d:o.d,own:i})});
+  return L.sort(function(a,b){return a.t.localeCompare(b.t,"cs")});
+}
+function renderS(keepFocus){
+  var q=($("slQ")&&$("slQ").value||"").trim().toLowerCase();
+  if(!$("slQ")){
+    $("povS").innerHTML='<input id="slQ" type="text" autocomplete="off" placeholder="Hledat pojem… (např. přítlak)" style="margin-bottom:12px">'+
+    '<div class="card stack sl-add"><b id="slFormT">+ Přidat vlastní pojem</b>'+
+    '<input id="slT" type="text" autocomplete="off" placeholder="Pojem (např. Klapačka)">'+
+    '<textarea id="slD" placeholder="Co to je / jak to říct klientovi"></textarea>'+
+    '<div class="row"><button class="btn-acc" id="slSave" style="flex:1">Uložit pojem</button><button class="btn-ghost" id="slCancel" hidden>Zrušit</button></div></div>'+
+    '<div class="card" style="padding:0" id="slList"></div>'+
+    '<button class="btn-ghost" id="slCopy" style="width:100%;margin-top:12px">Zkopírovat moje pojmy (pro kolegy)</button>'+
+    '<div class="hint" style="margin-top:8px">Vlastní pojmy zůstávají v tomto zařízení. Smazání obhlídky je nesmaže.</div>';
+    $("slQ").addEventListener("input",function(){renderS()});
+    $("slSave").addEventListener("click",saveTerm);
+    $("slCancel").addEventListener("click",function(){editIdx=-1;formReset()});
+    $("slCopy").addEventListener("click",copyOwn);
+    q="";
+  }
+  var L=allTerms().filter(function(x){return !q||(x.t+" "+x.d).toLowerCase().indexOf(q)>=0});
+  var h=L.map(function(x){
+    var s='<div class="sl-it'+(x.own>=0?' own':'')+'"><b>'+esc(x.t)+'</b><span>'+esc(x.d)+'</span>';
+    if(x.own>=0){
+      s+=delIdx===x.own?'<div class="sl-act"><span style="color:var(--bad);font-weight:700;align-self:center">Smazat?</span><button class="btn-danger" data-dy="'+x.own+'">Ano</button><button data-dn="1">Ne</button></div>'
+        :'<div class="sl-act"><button data-ed="'+x.own+'">Upravit</button><button class="btn-danger" data-del="'+x.own+'">Smazat</button></div>';
+    }
+    return s+'</div>';
+  }).join("");
+  $("slList").innerHTML=h||'<div class="empty">Nic nenalezeno. Přidejte ho výše jako vlastní pojem.</div>';
+}
+function formReset(){$("slT").value="";$("slD").value="";$("slFormT").textContent="+ Přidat vlastní pojem";$("slSave").textContent="Uložit pojem";$("slCancel").hidden=true}
+function saveTerm(){
+  var t=$("slT").value.trim(),d=$("slD").value.trim();
+  if(!t){toast("Napište pojem");$("slT").focus();return}
+  if(editIdx>=0)OWN[editIdx]={t:t,d:d};else OWN.push({t:t,d:d});
+  sv(SK,OWN);toast(editIdx>=0?"Pojem upraven":"Pojem přidán");editIdx=-1;formReset();renderS();
+}
+function copyOwn(){
+  if(!OWN.length){toast("Zatím žádné vlastní pojmy");return}
+  var txt="Moje okenní pojmy (ObhlídkaPROFI):\n"+OWN.map(function(o){return "• "+o.t+" – "+o.d}).join("\n");
+  function ok(){toast("Zkopírováno – vložte do zprávy")}
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,function(){fb()});else fb();
+  function fb(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");ok()}catch(e){}document.body.removeChild(ta)}
+}
+
+/* events */
+$("btnPostup").addEventListener("click",open);
+$("povClose").addEventListener("click",close);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("pov").hidden)close()});
+$("povTabs").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;P.tab=b.dataset.v;savP();render();$("pov").scrollTo(0,0)});
+$("povF").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.ck!=null){var n=+b.dataset.ck,i=P.done.indexOf(n);if(i>=0)P.done.splice(i,1);else P.done.push(n);P.ts=Date.now();savP();renderF();if(P.cmp&&i<0)setTimeout(scrollCur,30);if(P.done.length===N)toast("Návštěva hotová 👏");return}
+  if(b.id==="pvCmp"){P.cmp=!P.cmp;savP();render();if(P.cmp)setTimeout(scrollCur,30);return}
+  if(b.id==="pvNew"){
+    if(b.dataset.sure){P.done=[];P.ts=0;savP();renderF();$("pov").scrollTo(0,0);toast("Nová návštěva – začínáme od fáze 0");}
+    else{b.dataset.sure="1";b.textContent="Opravdu vynulovat?";b.classList.add("btn-danger");setTimeout(function(){if(b.isConnected){delete b.dataset.sure;b.textContent="Nová návštěva";b.classList.remove("btn-danger")}},3000)}
+  }
+});
+$("povS").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  if(b.dataset.ed!=null){editIdx=+b.dataset.ed;delIdx=-1;var o=OWN[editIdx];$("slT").value=o.t;$("slD").value=o.d;$("slFormT").textContent="Upravit pojem";$("slSave").textContent="Uložit změnu";$("slCancel").hidden=false;$("pov").scrollTo({top:0,behavior:"smooth"});$("slT").focus();return}
+  if(b.dataset.del!=null){delIdx=+b.dataset.del;renderS();return}
+  if(b.dataset.dn!=null){delIdx=-1;renderS();return}
+  if(b.dataset.dy!=null){OWN.splice(+b.dataset.dy,1);sv(SK,OWN);delIdx=-1;if(editIdx>=0){editIdx=-1;formReset()}renderS();toast("Pojem smazán")}
+});
 })();
 </script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
