@@ -153,6 +153,10 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
 .freebox{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--bad-bg);color:var(--bad);border:2px solid var(--bad);font-size:14.5px;line-height:1.4}
 .freebox .big{font-size:17px;-webkit-text-stroke:.3px currentColor}
 .freebox span{color:var(--fg);font-size:13.5px}
+input.need{border:2px solid var(--bad)!important;background:var(--bad-bg)!important}
+.miss{font-size:12.5px;font-weight:800;color:var(--bad);white-space:nowrap}
+.stale{background:var(--mid-bg);color:var(--fg);border:2px solid var(--mid);border-radius:var(--r);padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:8px}
+.totwarn{margin-top:8px;background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:6px 10px;font-size:13.5px;font-weight:700}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:9}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
@@ -301,6 +305,7 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
     <div class="totrow"><div class="lbl">Celkem podle ceníku vč. dopravy</div><div class="mini" id="segSleva" aria-label="úprava ceny"><button data-v="0">0</button><button data-v="5">5</button><button data-v="10">10</button></div></div>
     <div class="num" id="rTotal">0 Kč</div>
     <div class="sm" id="rTotalSub"></div>
+    <div id="rWarn"></div>
   </div>
   <details class="pro" id="proBox"><summary>Pro přepis do Domovea ▾</summary><div class="body" id="rPro"></div></details>
   <div style="margin-top:18px" id="wipeWrap"></div>
@@ -474,7 +479,7 @@ function renderBar(){
   var b=$("barIn");b.innerHTML="";
   function add(txt,cls,fn){var x=el("button",cls,txt);x.addEventListener("click",fn);b.appendChild(x)}
   $("bar").hidden=(view==="start"||view==="cenik");
-  if(view==="list"){add("+ Přidat okno","btn-main",function(){newItem()});add("Výsledek →","btn-acc",function(){show("res")});}
+  if(view==="list"){add("+ Přidat okno","btn-main",function(){newItem()});add("Výsledek →","btn-acc",function(){var miss=noDims();if(miss.length){toast("Chybí rozměr: "+miss.join(", ")+" – doplňte");return}show("res")});}
   if(view==="edit"){
     if(draft&&anyCheck(draft)){add("Uložit","btn-main",function(){saveItem(false)});add("Uložit + další","btn-acc",function(){saveItem(true)});}
     else{add("Neprohlédnuto → další","btn-skip",function(){saveItem(true,true)});add("Uložit + další","btn-acc btn-off",function(){toast("Vyplňte aspoň jednu kontrolu, nebo uložte jako Neprohlédnuto")});}
@@ -518,11 +523,12 @@ $("btnStart").addEventListener("click",function(){
 /* list */
 function renderList(){
   var box=$("listItems");box.innerHTML="";
+  if(S.created&&Date.now()-S.created>8*3600e3){var st=el("div","stale",'<b>Pozor:</b> tato obhlídka je z '+esc(new Date(S.created).toLocaleDateString("cs-CZ"))+(S.client?" ("+esc(S.client)+")":"")+'. Jste u nového klienta?<br>');var sb=el("button","btn-danger","Smazat a začít novou obhlídku");sb.addEventListener("click",function(){if(confirm("Smazat starou obhlídku"+(S.client?" ("+S.client+")":"")+" a začít novou?")){S=null;try{localStorage.removeItem(KEY)}catch(e){}show("start")}});st.appendChild(sb);box.appendChild(st)}
   if(!S.items.length){box.appendChild(el("div","card empty","Zatím žádné okno.<br>Začněte tlačítkem <b>+ Přidat okno</b>."));}
   S.items.forEach(function(it){
     var w=worst(it),b=el("button","card item"+(isSkip(it)?" skipped":""));
-    var dims=(cm(it.w)&&cm(it.h))?Math.round(cm(it.w))+"×"+Math.round(cm(it.h))+" cm":"bez rozměru";
-    b.innerHTML='<div class="main"><div class="nm">'+esc(it.label)+(it.ks>1?" · "+it.ks+"×":"")+'</div><div class="sub">'+esc(TYPE[it.type]+(kr(it)>1?" · "+krTxt(it):"")+" · "+MAT[it.mat]+(it.lep?" · lepené":"")+" · "+dims+(it.rok?" · r. "+it.rok:""))+'</div></div><span class="badge b'+w+'">'+SEV[w]+'</span>';
+    var hasD=cm(it.w)&&cm(it.h),dims=hasD?Math.round(cm(it.w))+"×"+Math.round(cm(it.h))+" cm":"bez rozměru";
+    b.innerHTML='<div class="main"><div class="nm">'+esc(it.label)+(!hasD&&!isSkip(it)?' <span class="miss">⚠ chybí rozměr</span>':'')+(it.ks>1?" · "+it.ks+"×":"")+'</div><div class="sub">'+esc(TYPE[it.type]+(kr(it)>1?" · "+krTxt(it):"")+" · "+MAT[it.mat]+(it.lep?" · lepené":"")+" · "+dims+(it.rok?" · r. "+it.rok:""))+'</div></div><span class="badge b'+w+'">'+SEV[w]+'</span>';
     b.addEventListener("click",function(){editItem(it.id)});box.appendChild(b);
   });
   var pcs=S.items.filter(function(i){return !isSkip(i)}).reduce(function(a,i){return a+(i.ks||1)},0),nsk=S.items.filter(isSkip).length;$("listMeta").textContent=(pcs?("Prohlédnuto "+pcs+" ks"):"")+(nsk?" · neprohlédnuto "+nsk:"");
@@ -538,6 +544,7 @@ function resetDel(wrapId,btnId,txt,fn){
 }
 
 /* edit */
+function noDims(){return S.items.filter(function(i){return !isSkip(i)&&!(cm(i.w)&&cm(i.h))}).map(function(i){return i.label})}
 function nextLabel(){var mx=0;S.items.forEach(function(x){var m=/^Okno (\d+)$/.exec((x.label||"").trim());if(m)mx=Math.max(mx,+m[1])});return "Okno "+Math.max(mx+1,S.items.length+1)}
 function newItem(tpl){
   editId=null;
@@ -546,7 +553,9 @@ function newItem(tpl){
   show("edit");
 }
 function editItem(id){var it=S.items.filter(function(x){return x.id===id})[0];if(!it)return;editId=id;draft=JSON.parse(JSON.stringify(it));show("edit")}
+var draftOrig="";
 function renderEdit(){
+  draftOrig=JSON.stringify(draft);
   $("eLabel").value=draft.label;
   var rc=$("roomChips");rc.innerHTML="";
   ROOMS.forEach(function(r){var b=el("button","",r);b.addEventListener("click",function(){var cnt=S.items.filter(function(x){return x.id!==draft.id&&x.label.indexOf(r)===0}).length;draft.label=cnt?r+" "+(cnt+1):r;$("eLabel").value=draft.label;renderHeader()});rc.appendChild(b)});
@@ -580,7 +589,7 @@ function dimHint(){
     if(w/n>130)t+=" · nadrozměr (křídlo nad 130 cm)";}
   $("dimHint").textContent=t;
 }
-["eW","eH"].forEach(function(id){$(id).addEventListener("input",function(){draft[id==="eW"?"w":"h"]=$(id).value;dimHint()})});
+["eW","eH"].forEach(function(id){$(id).addEventListener("input",function(){draft[id==="eW"?"w":"h"]=$(id).value;$(id).classList.remove("need");dimHint()})});
 $("eLabel").addEventListener("input",function(){draft.label=$("eLabel").value;renderHeader()});
 $("eRok").addEventListener("input",function(){draft.rok=$("eRok").value});
 $("eTroj").addEventListener("change",function(){draft.troj=$("eTroj").checked});
@@ -594,6 +603,9 @@ function saveItem(another,skip){
   var dup=S.items.some(function(x){return x.id!==draft.id&&x.label.trim().toLowerCase()===draft.label.toLowerCase()});
   if(dup){toast("Označení „"+draft.label+"“ už máte – přidejte číslo (např. "+draft.label+" 2)");$("eLabel").focus();return}
   if(!skip&&!anyCheck(draft)){toast("Vyplňte aspoň jednu kontrolu, nebo uložte jako Neprohlédnuto");return}
+  if(!skip){var dw=cm(draft.w),dh=cm(draft.h);
+    if(!dw||!dh){toast("Chybí rozměr okna – zadejte šířku i výšku");var f=!dw?$("eW"):$("eH");f.classList.add("need");f.scrollIntoView({block:"center",behavior:"smooth"});setTimeout(function(){f.focus()},350);return}
+    if((dw<25||dh<25||dw>400||dh>400)&&!confirm("Rozměr "+Math.round(dw)+" × "+Math.round(dh)+" cm vypadá neobvykle.\nOpravdu uložit?"))return;}
   draft.skip=!!skip;
   if(editId){S.items=S.items.map(function(x){return x.id===editId?draft:x})}else S.items.push(draft);
   persist();toast((skip?"Neprohlédnuto: ":"Uloženo: ")+draft.label);
@@ -633,6 +645,10 @@ function renderRes(){
   var cur=sumOf(sc),inc=cur.L,sub=cur.sub,tot=cur.tot;
   $("rTotal").textContent=kc(tot);
   $("rTotalSub").textContent=inc.length?(SCOPE_DESC[sc]+" · služby "+kc(sub)+" + dopravné "+kc(cenik.doprava)):"Žádná položka.";
+  var wr=[];if(sl)wr.push("Je zapnutá sleva "+sl+" % (servis a těsnění)");
+  var chg=[];CAT.forEach(function(g){g.i.forEach(function(x){if(+cenik[x[0]]!==x[2])chg.push(x[1]+" "+kc(+cenik[x[0]])+" (ceník "+kc(x[2])+")")})});
+  if(chg.length)wr.push("Upravený ceník: "+chg.join(", "));
+  $("rWarn").innerHTML=wr.map(function(t){return '<div class="totwarn">⚠ '+esc(t)+'</div>'}).join("");
   renderPro(inc);
   wipeBtn();
 }
@@ -730,7 +746,7 @@ $("btnDemo").addEventListener("click",function(){
     {id:uid(),label:"Okno 5",type:"kridlo",mat:"plast",ks:1,w:"",h:"",rok:"",troj:false,nar:false,note:"klient nechtěl",skip:true,c:{}}
   ],scope:1,sleva:0,created:Date.now()};persist();show("res");toast("Načtena ukázka – smažete ji v seznamu oken");
 });
-$("btnBackTop").addEventListener("click",function(){if(view==="cenik"){show(S&&cenikBack==="list"?"list":(S?"list":"start"))}else show("list")});
+$("btnBackTop").addEventListener("click",function(){if(view==="cenik"){show(S&&cenikBack==="list"?"list":(S?"list":"start"))}else if(view==="edit"&&draft&&JSON.stringify(draft)!==draftOrig){if(confirm("„"+(draft.label||"Okno")+"“ není uložené.\nZahodit změny a odejít?"))show("list")}else show("list")});
 
 /* wake lock (optional) */
 var wl=null;function wake(){try{if(navigator.wakeLock)navigator.wakeLock.request("screen").then(function(l){wl=l},function(){})}catch(e){}}
