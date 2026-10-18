@@ -62,7 +62,9 @@ button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(-
 .chips button{min-height:38px;padding:6px 12px;font-size:14px;border-radius:999px}
 .chk{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-top:1px solid var(--line)}
 .chk:first-child{border-top:0}
-.chk .t{font-weight:700;font-size:15px}
+.chk .t{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;line-height:1.2;color:var(--fg);-webkit-text-stroke:.35px currentColor}
+.chk .t .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:15px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;-webkit-text-stroke:0}
+.chk .t.sub{font-size:15px;font-weight:700;color:var(--muted);padding-left:37px;-webkit-text-stroke:0}
 .chk .seg button{font-size:13.5px;line-height:1.15;min-height:52px}
 .chk .seg button.s1[aria-pressed=true]{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
 .chk .seg button.s2[aria-pressed=true]{background:var(--mid-bg);color:var(--mid);border-color:var(--mid)}
@@ -509,14 +511,14 @@ function renderEdit(){
   setSeg("eKr",String(kr(draft)));setSeg("eStulp",draft.stulp?"1":"0");$("eStulp").hidden=kr(draft)!==2;
   dimHint();
   var ch=$("checks");ch.innerHTML="";
-  CHECKS.forEach(function(c){
-    var d=el("div","chk");d.innerHTML='<div class="t">'+esc(c.t)+'</div>';
+  CHECKS.forEach(function(c,ci){
+    var d=el("div","chk");d.innerHTML='<div class="t"><span class="num">'+(ci+1)+'</span>'+esc(c.t)+'</div>';
     var sg=el("div","seg");
     c.o.forEach(function(o,i){var b=el("button","s"+(i+1),esc(o));b.id="ck_"+c.k+"_"+(i+1);b.setAttribute("aria-pressed",String(draft.c[c.k]===i+1));
       b.addEventListener("click",function(){draft.c[c.k]=(draft.c[c.k]===i+1)?null:i+1;Array.prototype.forEach.call(sg.children,function(x,j){x.setAttribute("aria-pressed",String(draft.c[c.k]===j+1))});renderBar()});sg.appendChild(b)});
     d.appendChild(sg);ch.appendChild(d);
     if(c.k==="tin"){
-      var lp=el("div","chk");lp.innerHTML='<div class="t">Typ těsnění</div>';
+      var lp=el("div","chk");lp.innerHTML='<div class="t sub">↳ Typ těsnění</div>';
       var ls=el("div","seg lepseg");
       [["0","Nelepené","ln"],["1","Lepené","ll"]].forEach(function(o){var b=el("button",o[2],o[1]);b.id="lep_"+o[0];b.setAttribute("aria-pressed",String((draft.lep?"1":"0")===o[0]));
         b.addEventListener("click",function(){draft.lep=o[0]==="1";Array.prototype.forEach.call(ls.children,function(x){x.setAttribute("aria-pressed",String(x.id==="lep_"+(draft.lep?"1":"0")))})});ls.appendChild(b)});
