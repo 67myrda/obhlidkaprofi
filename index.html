@@ -150,6 +150,9 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
 .tier.t3 .say .v,.tier.t3 .say li::before{color:var(--bad)} .tier.t2 .say .v,.tier.t2 .say li::before{color:var(--mid)} .tier.t1 .say .v,.tier.t1 .say li::before{color:var(--z)}
 #segScope button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;font-weight:700;min-height:58px}
 #segScope button small{font-size:12.5px;font-weight:600;opacity:.85;font-variant-numeric:tabular-nums}
+.freebox{margin:8px 0;padding:10px 12px;border-radius:10px;background:var(--bad-bg);color:var(--bad);border:2px solid var(--bad);font-size:14.5px;line-height:1.4}
+.freebox .big{font-size:17px;-webkit-text-stroke:.3px currentColor}
+.freebox span{color:var(--fg);font-size:13.5px}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:9}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
@@ -640,20 +643,12 @@ function renderPro(inc){
   var mats=[];S.items.forEach(function(i){if(mats.indexOf(MAT[i.mat])<0)mats.push(MAT[i.mat])});
   h+='<div class="kv"><span>Materiál</span><b>'+esc(mats.join(" + ")||"–")+'</b></div>';
   ["kridlo","balkon","vchod","posuv"].forEach(function(t){var x=g.filter(function(y){return y.kind==="servis"&&y.type===t})[0];if(x)h+='<div class="kv"><span>'+TYPE[t]+'</span><b>'+x.n+' ks</b></div>'});
-  // seals per material: both / only in / only out
-  [["plast",0],["plast",1],["drevo",0],["drevo",1],["hlinik",0],["hlinik",1]].forEach(function(pr){
-    var mt=pr[0],lp=pr[1],bIn=0,bOut=0,onlyIn=0,onlyOut=0;
-    S.items.filter(function(i){return i.mat===mt&&(i.lep?1:0)===lp}).forEach(function(i){
-      var os=offers(i).filter(function(o){return o.kind==="tes"&&inScope(o,+(S.scope||1))});
-      var hi=os.some(function(o){return o.side==="in"}),ho=os.some(function(o){return o.side==="out"}),pi=sealLen(i,"in"),po=sealLen(i,"out");
-      if(hi&&ho){bIn+=pi;bOut+=po}else if(hi)onlyIn+=pi;else if(ho)onlyOut+=po;
+  // těsnění: co do kolonky Těsnění (dominantní varianta) a co do Volné položky
+  sealPlan().forEach(function(p){
+    h+='<div class="kv"><span>Těsnění – '+MAT[p.mat]+' ('+(p.lep?"lepené":"nelepené")+') → kolonka Těsnění</span><b>'+SIDE_NM[p.dom]+'<br>'+m1(p.main)+' m</b></div>';
+    p.free.forEach(function(f){
+      h+='<div class="freebox">⚠ Do <b>Volné položky</b> zadej:<br><b class="big">'+esc(f.txt)+': '+kc(f.pm)+'/m × '+m1(f.m)+' m</b><br><span>= '+kc(f.pm*f.m)+' · okna: '+esc(f.labels.join(", "))+'</span></div>';
     });
-    var both=bIn||bOut;
-    if(both||onlyIn||onlyOut){
-      var parts=[];if(both)parts.push((Math.abs(bIn-bOut)<0.05?"vnitřní i vnější "+m1(bIn)+" m":"vnitřní "+m1(bIn)+" m + vnější "+m1(bOut)+" m"));if(onlyIn)parts.push("vnitřní "+m1(onlyIn)+" m");if(onlyOut)parts.push("vnější "+m1(onlyOut)+" m");
-      h+='<div class="kv"><span>Výměna těsnění – '+MAT[mt]+' ('+(lp?"lepené":"nelepené")+')</span><b>'+parts.join("<br>")+'</b></div>';
-      if(parts.length>1)h+='<div class="warnbox">U '+MAT[mt]+'u ('+(lp?"lepené":"nelepené")+') se mění různé strany těsnění. Do Domovea zadejte hlavní variantu a zbytek jako volnou položku nebo do poznámky.</div>';
-    }
   });
   var kl=g.filter(function(y){return y.kind==="klicka"})[0];if(kl)h+='<div class="kv"><span>Klička</span><b>'+kl.n+' ks</b></div>';
   var nadr=S.items.filter(function(i){return !isSkip(i)&&(nadrW(i)>130||i.troj)}).map(function(i){return i.label});
@@ -679,15 +674,51 @@ function wipeBtn(){
     $("wipeN").addEventListener("click",wipeBtn);
   });
 }
-function noteText(){
-  var lines=S.items.map(function(i){
-    if(isSkip(i))return "• "+i.label+(i.ks>1?" ("+i.ks+"×)":"")+" – NEPROHLÉDNUTO (servis se neprovádí)";
-    var c=i.c||{},bits=[];
-    CHECKS.forEach(function(k){var v=c[k.k];if(v>1)bits.push(k.t.split(" (")[0].toLowerCase()+": "+k.o[v-1].toLowerCase())});
-    var dims=(cm(i.w)&&cm(i.h))?Math.round(cm(i.w))+"×"+Math.round(cm(i.h))+" cm":"";
-    return "• "+i.label+(i.ks>1?" ("+i.ks+"×)":"")+" – "+TYPE_PL[i.type]+(kr(i)>1?", "+krTxt(i):"")+", "+MAT[i.mat]+(dims?", "+dims:"")+(i.rok?", r. "+i.rok:"")+", těsnění "+(i.lep?"lepené":"nelepené")+(bits.length?"; "+bits.join(", "):"; bez závad")+(i.note?"; "+i.note:"");
+var SIDE_NM={both:"Vnější i vnitřní",out:"Vnější",inn:"Vnitřní"};
+/* per okno: jaké těsnění se mění v aktuálním rozsahu */
+function sealSides(i){var sc=+(S.scope||1),os=offers(i).filter(function(o){return o.kind==="tes"&&inScope(o,sc)});
+  var hi=os.some(function(o){return o.side==="in"}),ho=os.some(function(o){return o.side==="out"});return hi&&ho?"both":ho?"out":hi?"inn":""}
+/* skupiny materiál+lepené: dominantní varianta do kolonky, zbytek do volné položky */
+function sealPlan(){
+  var res=[];
+  [["plast",0],["plast",1],["drevo",0],["drevo",1],["hlinik",0],["hlinik",1]].forEach(function(pr){
+    var B=0,I=0,O=0,lab={both:[],out:[],inn:[]},wins=[];
+    S.items.filter(function(i){return !isSkip(i)&&i.mat===pr[0]&&(i.lep?1:0)===pr[1]}).forEach(function(i){
+      var sd=sealSides(i);if(!sd)return;var pi=sealLen(i,"in"),po=sealLen(i,"out");lab[sd].push(i.label);wins.push({i:i,sd:sd});
+      if(sd==="both"){var mn=Math.min(pi,po);B+=mn;if(pi>po)I+=pi-mn;else O+=po-mn}else if(sd==="inn")I+=pi;else O+=po;
+    });
+    if(!(B||I||O))return;
+    var opts=[{dom:"both",cost:I+O},{dom:"out",cost:I+B},{dom:"inn",cost:O+B}].filter(function(x){return x.dom!=="both"||B>0});
+    opts.sort(function(a,b){return a.cost-b.cost});var dom=opts[0].dom;
+    var pm=+cenik[pr[0]==="drevo"?"t_drevo":"t_plast"],nm=MAT[pr[0]]+(pr[1]?" (lepené)":"");
+    var p={mat:pr[0],lep:pr[1],dom:dom,free:[],exc:[]};
+    function fr(side,m,labels){if(m>0.05)p.free.push({txt:"Výměna "+(side==="out"?"vnějšího":"vnitřního")+" těsnění – "+nm,pm:pm,m:m,labels:labels})}
+    if(dom==="both"){p.main=B;fr("out",O,lab.out.concat(O>0&&!lab.out.length?lab.both:[]));fr("in",I,lab.inn.concat(I>0&&!lab.inn.length?lab.both:[]));p.exc=lab.out.concat(lab.inn)}
+    else if(dom==="out"){p.main=O+B;fr("in",I+B,lab.inn.concat(lab.both));p.exc=lab.inn.concat(lab.both)}
+    else{p.main=I+B;fr("out",O+B,lab.out.concat(lab.both));p.exc=lab.out.concat(lab.both)}
+    res.push(p);
   });
-  return "Obhlídka "+new Date().toLocaleDateString("cs-CZ")+"\n"+lines.join("\n");
+  return res;
+}
+function noteText(){
+  var sc=+(S.scope||1),exc=[];sealPlan().forEach(function(p){exc=exc.concat(p.exc)});
+  var top=[],mid=[],end=[];
+  S.items.forEach(function(i){
+    var nm=i.label+(i.ks>1?" ("+i.ks+" ks)":"")+(kr(i)>1?" ["+krTxt(i)+"]":"")+(i.mat!=="plast"?" – "+MAT[i.mat]:"");
+    if(isSkip(i)){end.push(nm+": bez servisu (neprohlédnuto)");return}
+    var os=offers(i).filter(function(o){return inScope(o,sc)}),sd=sealSides(i),lep=i.lep&&sd?" (lepené)":"";
+    var tes=sd==="both"?"VYMĚNIT VNĚJŠÍ I VNITŘNÍ TĚSNĚNÍ"+lep:sd==="out"?"VNĚJŠÍ TĚSNĚNÍ"+lep:sd==="inn"?"VNITŘNÍ TĚSNĚNÍ"+lep:"";
+    var kl=os.some(function(o){return o.kind==="klicka"})?"VYMĚNIT KLIČKU":"";
+    var flags=[];if(nadrW(i)>130||i.troj)flags.push("NADROZMĚR");if(i.nar)flags.push("vyšší náročnost");if(i.note)flags.push("pozn.: "+i.note);
+    var isExc=exc.indexOf(i.label)>=0&&(sd==="out"||sd==="inn");
+    var parts;
+    if(isExc)parts=["POUZE vyměnit "+tes,"základní servis"];
+    else{parts=["základní servis"];if(tes)parts.push(sd==="both"?tes:"VYMĚNIT "+tes)}
+    if(kl)parts.push(kl);
+    var line=nm+(isExc?" – ":": ")+parts.join(" + ")+(flags.length?" · "+flags.join(" · "):"");
+    if(isExc)top.push("🔴 "+line);else if(flags.length)top.push("⚠ "+line);else mid.push(line);
+  });
+  return "Obhlídka "+new Date().toLocaleDateString("cs-CZ")+" · rozsah: "+SCOPE_NM[sc]+"\n"+top.concat(mid,end).join("\n");
 }
 
 $("btnDemo").addEventListener("click",function(){
