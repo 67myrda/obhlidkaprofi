@@ -141,6 +141,15 @@ details.pro .body{border:1px solid var(--line);border-top:0;border-radius:0 0 va
 .kv b{font-variant-numeric:tabular-nums;text-align:right}
 pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin:8px 0;max-height:240px;overflow:auto}
 .warnbox{font-size:13px;color:var(--mid);background:var(--mid-bg);border-radius:10px;padding:8px 10px;margin-top:8px}
+.say{list-style:none;margin:0;padding:6px 14px 12px}
+.say li{position:relative;padding:9px 0 9px 20px;font-size:17px;line-height:1.4;border-top:1px solid var(--line)}
+.say li:first-child{border-top:0}
+.say li::before{content:"•";position:absolute;left:2px;top:7px;font-size:22px;line-height:1;font-weight:800}
+.say .v{font-weight:800;-webkit-text-stroke:.3px currentColor}
+.say .m{font-size:14px;color:var(--muted)}
+.tier.t3 .say .v,.tier.t3 .say li::before{color:var(--bad)} .tier.t2 .say .v,.tier.t2 .say li::before{color:var(--mid)} .tier.t1 .say .v,.tier.t1 .say li::before{color:var(--z)}
+#segScope button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;font-weight:700;min-height:58px}
+#segScope button small{font-size:12.5px;font-weight:600;opacity:.85;font-variant-numeric:tabular-nums}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:9}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 @media (prefers-reduced-motion:no-preference){button{transition:background .12s,border-color .12s}}
@@ -285,7 +294,7 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
   <div id="rTiers"></div>
   <div class="total">
     <div class="lbl">Rozsah zakázky</div>
-    <div class="seg" id="segScope" style="margin:8px 0 10px"><button data-v="3">Jen nutné</button><button data-v="2">+ doporučené</button><button data-v="1">Vše</button></div>
+    <div class="seg" id="segScope" style="margin:8px 0 10px"><button data-v="3">Minimum</button><button data-v="2">Optimum</button><button data-v="1">Vše</button></div>
     <div class="totrow"><div class="lbl">Celkem podle ceníku vč. dopravy</div><div class="mini" id="segSleva" aria-label="úprava ceny"><button data-v="0">0</button><button data-v="5">5</button><button data-v="10">10</button></div></div>
     <div class="num" id="rTotal">0 Kč</div>
     <div class="sm" id="rTotalSub"></div>
@@ -408,6 +417,38 @@ function lineText(x){
   return{t:"Výměna kličky",d:"vč. montáže",q:x.n+"×"};
 }
 
+
+/* ---------- výsledek k tlumočení + rozsah Minimum / Optimum / Vše ---------- */
+var SCOPE_NM={3:"Minimum",2:"Optimum",1:"Vše"};
+var SCOPE_DESC={3:"jen základní servis",2:"servis + nutné a doporučené",1:"vše včetně preventivní výměny"};
+function inScope(o,sc){return o.kind==="servis"||(sc<3&&o.sev>=sc)}
+function who(labels,okItems){
+  var all=okItems.map(function(i){return i.label});
+  var everyone=all.length>1&&all.every(function(l){return labels.indexOf(l)>=0});
+  return everyone?"všechna okna":labels.join(", ");
+}
+function speech(list,okItems){
+  var out=[];
+  function grp(f){var L=list.filter(f),lab=[],n=0,m=0;L.forEach(function(o){n+=o.n||0;m+=o.m||0;if(lab.indexOf(o.label)<0)lab.push(o.label)});return{L:L,lab:lab,n:n,m:m}}
+  var sv=grp(function(o){return o.kind==="servis"});
+  if(sv.L.length){
+    var onlyW=sv.L.every(function(o){return o.type==="kridlo"||o.type==="balkon"});
+    var cnt=onlyW?sv.n+" "+plural(sv.n,"křídlo","křídla","křídel"):sv.n+" ks";
+    out.push('<b class="v">Základní servis</b> <span class="m">(seřízení a promazání kování a převodovky, 3-osé centrování křídla, přítlaky, ošetření těsnění silikonem)</span>: <b>'+esc(who(sv.lab,okItems))+'</b> <span class="m">· celkem '+cnt+'</span>'+(function(){var w=[];sv.L.forEach(function(o){if(o.sev===3&&w.indexOf(o.label)<0)w.push(o.label)});return w.length&&w.length<sv.lab.length?' <span class="m">· nejvíc potřebuje: '+esc(w.join(", "))+'</span>':""})());
+  }
+  [["out","vnější"],["in","vnitřní"]].forEach(function(sd){
+    var g=grp(function(o){return o.kind==="tes"&&o.side===sd[0]});
+    if(!g.L.length)return;
+    var lep=[];g.L.forEach(function(o){if(o.lep&&lep.indexOf(o.label)<0)lep.push(o.label)});
+    var ln='<b class="v">Vyměnit '+sd[1]+' těsnění</b>'+(sd[0]==="out"?' <span class="m">(v rámu)</span>':' <span class="m">(na křídle)</span>')+': <b>'+esc(who(g.lab,okItems))+'</b>';
+    if(lep.length)ln+= ' <span class="m">· lepené'+(lep.length===g.lab.length?"":": ")+(lep.length===g.lab.length?"":esc(lep.join(", ")))+'</span>';
+    if(g.L.some(function(o){return o.noDim}))ln+=' <span class="m">· ⚠ chybí rozměr</span>';
+    out.push(ln);
+  });
+  var kl=grp(function(o){return o.kind==="klicka"});
+  if(kl.L.length)out.push('<b class="v">Vyměnit kličku</b>: <b>'+esc(who(kl.lab,okItems))+'</b> <span class="m">· '+kl.n+' ks</span>');
+  return out;
+}
 /* ---------- views ---------- */
 function show(v){
   view=v;["vStart","vList","vEdit","vRes","vCenik"].forEach(function(id){$(id).hidden=true});
@@ -467,7 +508,7 @@ function setSeg(id,v){Array.prototype.forEach.call($(id).querySelectorAll("butto
 function segVal(id){var b=$(id).querySelector('button[aria-pressed="true"]');return b?b.dataset.v:null}
 function bindSeg(id,fn){$(id).addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;setSeg(id,b.dataset.v);if(fn)fn(b.dataset.v)})}
 $("btnStart").addEventListener("click",function(){
-  S={client:$("inClient").value.trim(),city:$("inCity").value.trim(),items:[],scope:2,sleva:0,created:Date.now()};
+  S={client:$("inClient").value.trim(),city:$("inCity").value.trim(),items:[],scope:1,sleva:0,created:Date.now()};
   persist();wake();newItem();
 });
 
@@ -568,23 +609,27 @@ function renderRes(){
   $("rFacts").innerHTML='<div><b>'+pieces+'</b><span>zkontrolováno kusů</span></div><div><b>'+(oldest||"–")+'</b><span>'+(oldest?"nejstarší okno ("+(d.getFullYear()-oldest)+" let)":"rok nezjištěn")+'</span></div><div><b>'+nIss+'</b><span>nálezů k řešení</span></div>';
   var tiers=$("rTiers");tiers.innerHTML="";
   var sl=S.sleva||0,tierSum={};
+  var okItems=S.items.filter(function(i){return !isSkip(i)});
+  var svAll=all.filter(function(o){return o.kind==="servis"});
+  var svTier=Math.max(2,svAll.reduce(function(a,o){return Math.max(a,o.sev)},0));
   [3,2,1].forEach(function(sv){
-    var list=all.filter(function(o){return o.sev===sv}),g=group(list);
-    var sum=list.reduce(function(a,o){return a+rate(o)*(isDisc(o)?(1-sl/100):1)},0);tierSum[sv]=sum;
+    var list=all.filter(function(o){return o.kind!=="servis"&&o.sev===sv});
+    if(sv===svTier)list=svAll.concat(list);
     var t=el("div","tier t"+sv);
-    t.innerHTML='<div class="th"><div>'+SEV[sv]+'<small>'+SEV_SUB[sv]+'</small></div><div class="sum">'+(list.length?kc(sum):"")+'</div></div>';
-    if(!g.length)t.appendChild(el("div","none",sv===3?"Nic nutného — výborná zpráva.":"Nic."));
-    g.forEach(function(x){var lt=lineText(x);var r=el("div","line");
-      r.innerHTML='<div class="d"><b>'+esc(lt.t)+'</b><span>'+esc(x.labels.join(", "))+(lt.d?" · "+esc(lt.d):"")+'</span></div><div class="q"><b>'+esc(lt.q)+'</b><span>'+kc(x.price*(isDisc(x)?(1-sl/100):1))+'</span></div>';t.appendChild(r)});
+    t.innerHTML='<div class="th"><div>'+SEV[sv]+'<small>'+SEV_SUB[sv]+'</small></div></div>';
+    var sp=speech(list,okItems);
+    if(!sp.length)t.appendChild(el("div","none",sv===3?"Nic nutného — výborná zpráva.":"Nic."));
+    else{var ul=el("ul","say");sp.forEach(function(x){var li=el("li","",x);ul.appendChild(li)});t.appendChild(ul)}
     tiers.appendChild(t);
   });
   if(skipped.length)tiers.appendChild(el("div","skipnote","Neprohlédnuto (nezapočítáno): "+esc(skipped.join(", "))));
-  setSeg("segScope",S.scope||2);setSeg("segSleva",sl);
-  var sc=+(S.scope||2),inc=all.filter(function(o){return o.sev>=sc});
-  var sub=inc.reduce(function(a,o){return a+rate(o)*(isDisc(o)?(1-sl/100):1)},0);
-  var tot=inc.length?sub+ +cenik.doprava:0;
+  var sc=+(S.scope||1);if(!(sc>=1&&sc<=3))sc=1;
+  setSeg("segScope",sc);setSeg("segSleva",sl);
+  function sumOf(k){var L=all.filter(function(o){return inScope(o,k)});var x=L.reduce(function(a,o){return a+rate(o)*(isDisc(o)?(1-sl/100):1)},0);return{L:L,sub:x,tot:L.length?x+ +cenik.doprava:0}}
+  [3,2,1].forEach(function(k){var bt=$("segScope").querySelector('button[data-v="'+k+'"]');if(bt)bt.innerHTML=SCOPE_NM[k]+'<small>'+kc(sumOf(k).tot)+'</small>'});
+  var cur=sumOf(sc),inc=cur.L,sub=cur.sub,tot=cur.tot;
   $("rTotal").textContent=kc(tot);
-  $("rTotalSub").textContent=inc.length?("služby "+kc(sub)+" + dopravné "+kc(cenik.doprava)):"Vyberte rozsah zakázky.";
+  $("rTotalSub").textContent=inc.length?(SCOPE_DESC[sc]+" · služby "+kc(sub)+" + dopravné "+kc(cenik.doprava)):"Žádná položka.";
   renderPro(inc);
   wipeBtn();
 }
@@ -599,7 +644,7 @@ function renderPro(inc){
   [["plast",0],["plast",1],["drevo",0],["drevo",1],["hlinik",0],["hlinik",1]].forEach(function(pr){
     var mt=pr[0],lp=pr[1],bIn=0,bOut=0,onlyIn=0,onlyOut=0;
     S.items.filter(function(i){return i.mat===mt&&(i.lep?1:0)===lp}).forEach(function(i){
-      var os=offers(i).filter(function(o){return o.kind==="tes"&&o.sev>=(+(S.scope||2))});
+      var os=offers(i).filter(function(o){return o.kind==="tes"&&inScope(o,+(S.scope||1))});
       var hi=os.some(function(o){return o.side==="in"}),ho=os.some(function(o){return o.side==="out"}),pi=sealLen(i,"in"),po=sealLen(i,"out");
       if(hi&&ho){bIn+=pi;bOut+=po}else if(hi)onlyIn+=pi;else if(ho)onlyOut+=po;
     });
@@ -652,7 +697,7 @@ $("btnDemo").addEventListener("click",function(){
     {id:uid(),label:"Kuchyň",type:"kridlo",mat:"plast",ks:1,w:"100",h:"120",rok:"2011",troj:false,nar:false,note:"",lep:false,c:{tin:1,tout:2,kov:2,dol:1,kl:3}},
     {id:uid(),label:"Ložnice",type:"kridlo",mat:"plast",ks:1,w:"140",h:"150",rok:"2014",troj:false,nar:false,note:"",c:{tin:1,tout:1,kov:1,dol:1,kl:1}},
     {id:uid(),label:"Okno 5",type:"kridlo",mat:"plast",ks:1,w:"",h:"",rok:"",troj:false,nar:false,note:"klient nechtěl",skip:true,c:{}}
-  ],scope:2,sleva:0,created:Date.now()};persist();show("res");toast("Načtena ukázka – smažete ji v seznamu oken");
+  ],scope:1,sleva:0,created:Date.now()};persist();show("res");toast("Načtena ukázka – smažete ji v seznamu oken");
 });
 $("btnBackTop").addEventListener("click",function(){if(view==="cenik"){show(S&&cenikBack==="list"?"list":(S?"list":"start"))}else show("list")});
 
