@@ -223,6 +223,12 @@ input.need{border:2px solid var(--bad)!important;background:var(--bad-bg)!import
 .sl-act button{min-height:34px;padding:4px 12px;font-size:13px}
 .sl-add{margin-bottom:12px}
 .sl-add input{font-size:16px}
+.cred{margin-top:22px;display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 14px 14px 16px}
+.cred-l{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:9px}
+.cred-sig{display:block;width:108px;height:auto;border-radius:7px}
+.cred-t{font-size:12.5px;line-height:1.45;color:var(--muted)}
+.cred-t a{color:var(--z);font-weight:700;text-decoration:none;white-space:nowrap}
+.cred-logo{flex:none;width:76px;height:76px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,.22)}
 </style>
 </head><body>
 <div class="wrap">
@@ -324,6 +330,13 @@ input.need{border:2px solid var(--bad)!important;background:var(--bad-bg)!import
   <button id="btnBackup" class="btn-main" style="width:100%;margin-top:14px">📤 Poslat zálohu (Disk / e-mail)</button>
   <div class="hint" style="margin-top:6px">Shrnutí všech tří variant + všechna okna s rozměry. Obhlídka zůstává i v 🗂 Archivu 30 dní.</div>
   <div style="margin-top:18px" id="wipeWrap"></div>
+  <div class="cred">
+    <div class="cred-l">
+      <img class="cred-sig" src="footer.webp" width="240" height="41" alt="© 67M &amp; Claude 2026" loading="lazy">
+      <div class="cred-t">Něco by šlo vylepšit?<br>Napiš na <a href="mailto:mymolove19@gmail.com">mymolove19@gmail.com</a></div>
+    </div>
+    <img class="cred-logo" src="logo.webp" width="152" height="152" alt="ObhlídkaPROFI" loading="lazy">
+  </div>
 </section>
 </div>
 
