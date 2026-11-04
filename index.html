@@ -172,6 +172,9 @@ pre.note{white-space:pre-wrap;font:inherit;font-size:14px;background:var(--bg);b
 #s3Panel button.s3r i{font-style:normal;color:var(--z);font-size:18px}
 #s3Panel .none{padding:12px 14px;color:var(--muted)}
 .notebig{font-size:17px;font-weight:800;color:var(--fg)}
+.kv .half{font-size:16px;font-weight:800;color:var(--z)}
+.dbl{margin:2px 0 8px;padding:8px 10px;border-radius:10px;background:var(--mid-bg);color:var(--mid);font-size:14px;line-height:1.35}
+.dbl .m{color:var(--fg);font-size:13px}
 .kv .num{font-size:24px;font-weight:800;line-height:1.1}
 .kv .num small{font-size:14px;font-weight:700}
 .say .n{font-size:17px;font-weight:800}
@@ -465,14 +468,17 @@ function worst(it){if(isSkip(it))return 0;var c=it.c||{},m=1;CHECKS.forEach(func
 function sealSum(sc){
   var out=[];
   ["plast","drevo","hlinik"].forEach(function(mt){
-    var L=0,N=0;
+    var L=0,N=0,So=0,Si=0;
     S.items.filter(function(i){return !isOut(i)&&i.mat===mt}).forEach(function(i){
-      var m=0;if(sc<=2)m+=sealLen(i,"out");if(sc===1)m+=sealLen(i,"in");
-      if(i.lep)L+=m;else N+=m;
+      var o=sc<=2?sealLen(i,"out"):0,n=sc===1?sealLen(i,"in"):0;
+      So+=o;Si+=n;if(i.lep)L+=o+n;else N+=o+n;
     });
     var T=L+N;if(T<1e-6)return;
-    var Tc=Math.ceil(T-1e-9),lc=Math.min(Tc,Math.ceil(L-1e-9));
-    out.push({mat:mt,T:T,Tc:Tc,lep:lc,nel:Tc-lc});
+    var oc=Math.ceil(So-1e-9),ic=Math.ceil(Si-1e-9),half=0,Tc;
+    /* Maximum: firemní appka bere jednu délku a při „vnější i vnitřní“ ji zdvojí → zadává se delší strana, zaokrouhlená nahoru */
+    if(sc===1){half=Math.max(oc,ic);Tc=2*half}else Tc=oc;
+    var lc=Math.min(Tc,Math.ceil(L-1e-9));
+    out.push({mat:mt,T:T,Tc:Tc,half:half,oc:oc,ic:ic,lep:lc,nel:Tc-lc});
   });
   return out;
 }
@@ -493,7 +499,7 @@ function scopeLines(sc){
   var ss=sealSum(sc);
   if(!ss.length)out.push('<b class="v">Těsnění</b>: <span class="m">bez výměny · ošetřit silikonem</span>');
   else{
-    ss.forEach(function(p){out.push('<b class="v">Vyměnit '+(sc===1?"vnější i vnitřní":"vnější")+' těsnění</b> – '+MAT[p.mat]+': <b class="n">'+p.Tc+' m</b>')});
+    ss.forEach(function(p){out.push('<b class="v">Vyměnit '+(sc===1?"vnější i vnitřní":"vnější")+' těsnění</b> – '+MAT[p.mat]+': <b class="n">'+p.Tc+' m</b>'+(sc===1?' <span class="m">('+p.half+'+'+p.half+')</span>':''))});
     if(sc===2)out.push('<b class="v">Vnitřní těsnění</b>: <span class="m">bez výměny · ošetřit silikonem</span>');
   }
   var kl=klCount(sc);if(kl)out.push('<b class="v">Vyměnit kličku</b>: <b class="n">'+kl+' ks</b>');
@@ -770,7 +776,10 @@ function renderPro(sc){
   var ss=sealSum(sc);
   if(!ss.length)h+='<div class="kv"><span>Těsnění</span><b>bez výměny</b></div>';
   else{
-    ss.forEach(function(p){h+='<div class="kv"><span>Těsnění – '+MAT[p.mat]+' → kolonka Těsnění</span><b>'+SIDE_NM[sc===1?"both":"out"]+'<br><span class="num">'+p.Tc+'<small> m</small></span></b></div>'});
+    ss.forEach(function(p){
+      h+='<div class="kv"><span>Těsnění – '+MAT[p.mat]+' → kolonka Těsnění</span><b>'+SIDE_NM[sc===1?"both":"out"]+'<br><span class="num">'+p.Tc+'<small> m</small></span>'+(sc===1?' <span class="half">('+p.half+'+'+p.half+')</span>':'')+'</b></div>';
+      if(sc===1)h+='<div class="dbl">⚠ Do firemní appky zadej <b>'+p.half+' m</b> (jedna strana) – u „Vnější i vnitřní“ ji appka sama zdvojí'+(p.oc!==p.ic?' <span class="m">· skutečně vnější '+p.oc+' m, vnitřní '+p.ic+' m</span>':'')+'.</div>';
+    });
   }
   var needs=ok.filter(function(i){return (i.need||"").trim()}).map(function(i){return i.label+": "+i.need.trim().replace(/\s*\n\s*/g,", ")});
   if(needs.length)h+='<div class="freebox">⚠ Do <b>Volné položky</b> zadej:<br><b class="big">'+needs.map(esc).join("<br>")+'</b></div>';
@@ -835,7 +844,7 @@ function noteText(){
   var ss=sealSum(sc);
   if(!ss.length)L.push("Těsnění: bez výměny (ošetřit silikonem)");
   else{
-    ss.forEach(function(p){L.push("Výměna "+(sc===1?"vnějšího i vnitřního":"vnějšího")+" těsnění – "+MAT[p.mat]+": "+p.Tc+" m");L.push((ss.length>1?MAT[p.mat].toUpperCase()+": ":"")+"LEPENÉ "+p.lep+" M · NELEPENÉ "+p.nel+" M")});
+    ss.forEach(function(p){L.push("Výměna "+(sc===1?"vnějšího i vnitřního":"vnějšího")+" těsnění – "+MAT[p.mat]+": "+p.Tc+" m"+(sc===1?" ("+p.half+"+"+p.half+")":""));L.push((ss.length>1?MAT[p.mat].toUpperCase()+": ":"")+"LEPENÉ "+p.lep+" M · NELEPENÉ "+p.nel+" M")});
     if(sc===2)L.push("Vnitřní těsnění: bez výměny (ošetřit silikonem)");
   }
   var kl=klCount(sc);if(kl)L.push("Výměna kličky: "+kl+" ks");
